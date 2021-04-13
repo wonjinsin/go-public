@@ -1,7 +1,7 @@
 PACKAGE = chatapp
 
 vendor:
-	@echo "chatapp"
+	go mod vendor
 
 build:
 	go build -o bin/chatapp ./api/main.go
