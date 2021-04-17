@@ -1,4 +1,4 @@
-module chatapp
+module gorilla
 
 go 1.15
 

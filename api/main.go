@@ -1,9 +1,9 @@
 package main
 
 import (
-	"chatapp/api/controller"
-	"chatapp/config"
 	"fmt"
+	"gorilla/api/controller"
+	"gorilla/config"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -14,12 +14,12 @@ func main() {
 }
 
 func startServer() {
-	Chatapp := config.Chatapp
+	Gorilla := config.Gorilla
 	e := echo.New()
 	e.GET("/healthCheck", func(c echo.Context) error {
 		return c.String(http.StatusOK, "It's working!")
 	})
 
-	controller.InitHandler(e)
-	e.Start(fmt.Sprintf(":%s", Chatapp.GetString("port")))
+	controller.InitHandler(Gorilla, e)
+	e.Start(fmt.Sprintf(":%s", Gorilla.GetString("port")))
 }

@@ -1,7 +1,7 @@
-PACKAGE = chatapp
+PACKAGE = gorilla
 
 vendor:
 	go mod vendor
 
 build:
-	go build -o bin/chatapp ./api/main.go
+	go build -o bin/gorilla ./api/main.go
