@@ -8,9 +8,9 @@ import (
 )
 
 type GorillaStatus struct {
-	ResultCode string   `"json:ResultCode"`
-	ResultMsg  string   `"json:ResultMsg"`
-	ResultData struct{} `"json:ResultData"`
+	ResultCode string      `json:"resultCode"`
+	ResultMsg  string      `json:"resultMsg"`
+	ResultData interface{} `json:"resultData,omitempty"`
 }
 
 func InitHandler(Gorilla *config.ViperConfig, e *echo.Echo) {
@@ -23,7 +23,7 @@ func InitHandler(Gorilla *config.ViperConfig, e *echo.Echo) {
 
 }
 
-func response(c echo.Context, code int, resultMsg string, resultData struct{}) error {
+func response(c echo.Context, code int, resultMsg string, resultData interface{}) error {
 
 	strCode := strconv.Itoa(code)
 
