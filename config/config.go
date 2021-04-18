@@ -11,10 +11,10 @@ type ViperConfig struct {
 	*viper.Viper
 }
 
-var Chatapp *ViperConfig
+var Gorilla *ViperConfig
 
 func init() {
-	Chatapp = initViperConfig()
+	Gorilla = initViperConfig()
 }
 
 func initViperConfig() *ViperConfig {
