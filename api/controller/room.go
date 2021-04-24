@@ -13,12 +13,13 @@ type JsonInterface struct {
 	Test string `json:"test"`
 }
 
-func newHTTPRoomHandler(Gorilla *config.ViperConfig, eg *echo.Group) {
+func newHTTPRoomHandler(gorilla *config.ViperConfig, eg *echo.Group) {
 	h := &httpRoomHandler{}
 	eg.GET("", h.Room)
 }
 
 func (h *httpRoomHandler) Room(c echo.Context) error {
+
 	roomJson := JsonInterface{
 		Test: "Test",
 	}

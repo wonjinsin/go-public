@@ -23,4 +23,7 @@
 /vendor/
 /Godeps/
 
+*.swp
+.DS_Store
+
 # End of https://www.toptal.com/developers/gitignore/api/go

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"gorilla/api/controller"
 	"gorilla/config"
+	"gorilla/model"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -21,5 +23,11 @@ func startServer() {
 	})
 
 	controller.InitHandler(Gorilla, e)
+	db, err := model.MongoConn(Gorilla)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e.Start(fmt.Sprintf(":%s", Gorilla.GetString("port")))
 }
