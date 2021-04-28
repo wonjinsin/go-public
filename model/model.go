@@ -5,38 +5,34 @@ import (
 	"fmt"
 	"gorilla/config"
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type logEntity struct {
-	logType  string `bson:"logType"`
-	logValue string `bson:"logValue"`
-	dbPrefix string `bson:"dbPrefix"`
-	time     string `bson:"time"`
-}
-
-func MongoConn(gorilla *config.ViperConfig) (client *mongo.Client) {
-
+func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 	credential := options.Credential{
-		Username: gorilla.GetString("db_user"),
-		Password: gorilla.GetString("db_pass"),
+		Username: Gorilla.GetString("db_user"),
+		Password: Gorilla.GetString("db_pass"),
 	}
-	applyUri := gorilla.GetString("db_host") + ":" + gorilla.GetString("db_port")
+	applyUri := Gorilla.GetString("db_host") + ":" + Gorilla.GetString("db_port")
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	clientOptions := options.Client().ApplyURI("mongodb://" + applyUri).SetAuth(credential)
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	db, err := mongo.Connect(ctx, clientOptions)
+	defer cancel()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Check the connection
-	err = client.Ping(context.TODO(), nil)
+	err = db.Ping(context.TODO(), nil)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("MongoDB Connection Made")
-	return client
+	return db
 }
