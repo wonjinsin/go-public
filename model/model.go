@@ -36,3 +36,8 @@ func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 	fmt.Println("MongoDB Connection Made")
 	return db
 }
+
+type Room interface {
+	CheckRoom(ctx context.Context, room string) (err error)
+	GetRoomContents(ctx context.Context, room string) (err error)
+}
