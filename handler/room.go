@@ -23,8 +23,8 @@ func NewRoomHandler(db *mongo.Client) *RoomHandler {
 	return rh
 }
 
-func (rh *RoomHandler) GetRoom(ctx context.Context) string {
-	rh.md.CheckRoom(ctx)
+func (rh *RoomHandler) GetRoom(ctx context.Context) bool {
+	roomInfo := rh.md.CheckRoom(ctx)
 
-	return "test"
+	return rh.md.CheckRoom(ctx)
 }

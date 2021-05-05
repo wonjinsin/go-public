@@ -3,7 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
-	"log"
+	"gorilla/structs"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,25 +27,18 @@ func NewRoomModel(db *mongo.Client) *RoomModel {
 	return rm
 }
 
-func (rm *RoomModel) CheckRoom(ctx context.Context) bool {
+func (rm *RoomModel) CheckRoom(c context.Context) (structs.RoomInfo, error) {
+
+	result := structs.RoomInfo{}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	cur, err := rm.room.Find(ctx, bson.D{{Key: "roomNumber", Value: "1"}})
+
+	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: "1"}}).Decode(&result)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	defer cur.Close(ctx)
-
-	for cur.Next(ctx) {
-		var result bson.D
-		err := cur.Decode(&result)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(result)
-		// do something with result....
-	}
-	return true
+	return result, err
 }

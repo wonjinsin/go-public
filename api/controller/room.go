@@ -26,7 +26,13 @@ func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 
 func (h *httpRoomController) Room(c echo.Context) error {
 	ctx := c.Request().Context()
-	h.rh.GetRoom(ctx)
+	// result, err := h.rh.GetRoom(ctx)
+	result := h.rh.GetRoom(ctx)
 
-	return response(c, 200, "test message", "test")
+	return response(c, 404, "Room is not exist", result)
+	//	if err != nil {
+	//		return response(c, 404, "Room is not exist", "")
+	//	}
+	//
+	//	return response(c, 200, "Got room Info", result)
 }
