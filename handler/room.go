@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"gorilla/model"
+	"gorilla/structs"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -23,8 +24,8 @@ func NewRoomHandler(db *mongo.Client) *RoomHandler {
 	return rh
 }
 
-func (rh *RoomHandler) GetRoom(ctx context.Context) bool {
-	roomInfo := rh.md.CheckRoom(ctx)
+func (rh *RoomHandler) GetRoom(ctx context.Context) structs.RoomInfo {
+	roomInfo, _ := rh.md.CheckRoom(ctx)
 
-	return rh.md.CheckRoom(ctx)
+	return roomInfo
 }

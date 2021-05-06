@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"context"
 	"gorilla/config"
 	"gorilla/handler"
+	"gorilla/utils"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,12 +23,18 @@ func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 		rh: rh,
 	}
 
-	eg.GET("", h.Room)
+	eg.GET("/:userId", h.Room)
 }
 
 func (h *httpRoomController) Room(c echo.Context) error {
+	userId := c.Param("userId")
+	var key utils.StringKey = "userId"
+	// if err != nil {
+	// return response(c, 404, "Param is not number", "")
+	// }
+
 	ctx := c.Request().Context()
-	// result, err := h.rh.GetRoom(ctx)
+	ctx = context.WithValue(ctx, key, userId)
 	result := h.rh.GetRoom(ctx)
 
 	return response(c, 404, "Room is not exist", result)

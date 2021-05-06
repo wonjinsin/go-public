@@ -28,13 +28,17 @@ func NewRoomModel(db *mongo.Client) *RoomModel {
 }
 
 func (rm *RoomModel) CheckRoom(c context.Context) (structs.RoomInfo, error) {
+	fmt.Println(c)
+	userId := c.Value("userId")
+
+	fmt.Println(userId)
 
 	result := structs.RoomInfo{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: "1"}}).Decode(&result)
+	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: userId}}).Decode(&result)
 
 	if err != nil {
 		fmt.Println(err)
