@@ -10,7 +10,7 @@ import (
 
 type RoomHandler struct {
 	db *mongo.Client
-	md *model.RoomModel
+	md model.Room
 }
 
 func NewRoomHandler(db *mongo.Client) *RoomHandler {
@@ -24,8 +24,16 @@ func NewRoomHandler(db *mongo.Client) *RoomHandler {
 	return rh
 }
 
-func (rh *RoomHandler) GetRoom(ctx context.Context) structs.RoomInfo {
-	roomInfo, _ := rh.md.CheckRoom(ctx)
+func (rh *RoomHandler) GetRoom(ctx context.Context) (structs.RoomInfo, error) {
+	rh.md.SetRoomNo(ctx)
+	roomInfo, err := rh.md.CheckRoom()
 
-	return roomInfo
+	if err != nil {
+		return roomInfo, err
+	}
+
+	roomContents, err := rh.md.GetRoomContents(ctx)
+	roomInfo.Contents = roomContents
+
+	return roomInfo, err
 }

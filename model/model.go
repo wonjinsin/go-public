@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gorilla/config"
+	"gorilla/structs"
 	"log"
 	"time"
 
@@ -38,6 +39,7 @@ func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 }
 
 type Room interface {
-	CheckRoom(ctx context.Context, room string) (err error)
-	GetRoomContents(ctx context.Context, room string) (err error)
+	SetRoomNo(c context.Context)
+	CheckRoom() (structs.RoomInfo, error)
+	GetRoomContents(c context.Context) ([]structs.RoomContents, error)
 }

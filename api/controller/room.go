@@ -5,6 +5,7 @@ import (
 	"gorilla/config"
 	"gorilla/handler"
 	"gorilla/utils"
+	"strconv"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +13,7 @@ import (
 
 type httpRoomController struct {
 	db *mongo.Client
-	rh *handler.RoomHandler
+	rh handler.Room
 }
 
 func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
@@ -23,24 +24,26 @@ func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 		rh: rh,
 	}
 
-	eg.GET("/:userId", h.Room)
+	eg.GET("/:roomNo", h.Room)
 }
 
 func (h *httpRoomController) Room(c echo.Context) error {
-	userId := c.Param("userId")
-	var key utils.StringKey = "userId"
-	// if err != nil {
-	// return response(c, 404, "Param is not number", "")
-	// }
+	roomNoStr := c.Param("roomNo")
+	roomNo, err := strconv.Atoi(roomNoStr)
 
+	if err != nil {
+		return response(c, 404, "Parameter should be number", "")
+	}
+
+	var key utils.IntKey = 1
 	ctx := c.Request().Context()
-	ctx = context.WithValue(ctx, key, userId)
-	result := h.rh.GetRoom(ctx)
+	ctx = context.WithValue(ctx, key, roomNo)
 
-	return response(c, 404, "Room is not exist", result)
-	//	if err != nil {
-	//		return response(c, 404, "Room is not exist", "")
-	//	}
-	//
-	//	return response(c, 200, "Got room Info", result)
+	result, err := h.rh.GetRoom(ctx)
+
+	if err != nil {
+		return response(c, 404, "Room is not exist", "")
+	}
+
+	return response(c, 200, "Got room Info", result)
 }

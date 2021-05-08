@@ -1,8 +1,10 @@
 package handler
 
-import "context"
+import (
+	"context"
+	"gorilla/structs"
+)
 
 type Room interface {
-	CheckRoom(ctx context.Context, room string) (err error)
-	GetRoomContents(ctx context.Context, room string) (err error)
+	GetRoom(ctx context.Context) (structs.RoomInfo, error)
 }
