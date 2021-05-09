@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type RoomInfo struct {
 	RoomNo   int            `json:"roomNo"`
 	Users    [2]string      `json:"users"`
@@ -7,7 +9,8 @@ type RoomInfo struct {
 }
 
 type RoomContents struct {
-	User    string `json:"user"`
-	Message string `json:"message"`
-	Date    int    `json:"date"`
+	User    string    `json:"user"`
+	Message string    `json:"message"`
+	Date    time.Time `json:"date"`
+	DateStr string    `json:"DateStr"`
 }
