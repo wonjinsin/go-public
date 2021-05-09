@@ -1,6 +1,6 @@
 PACKAGE = gorilla
 
-vendor:
+vendor-package:
 	go mod vendor
 
 build:

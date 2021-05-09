@@ -2,10 +2,8 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"gorilla/structs"
 	"gorilla/utils"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -46,8 +44,11 @@ func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}}).Decode(&result)
 
 	if err != nil {
-		fmt.Println(err)
+		Logger.Logging().Warnw("No room basic info", "result", err)
+		return result, err
 	}
+
+	Logger.Logging().Infow("Got room basic info", "result", result)
 
 	return result, err
 }
@@ -61,7 +62,8 @@ func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents,
 	cur, err := rm.room_contents.Find(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}})
 
 	if err != nil {
-		log.Fatal(err)
+		Logger.Logging().Warnw("No roomContents", "result", err)
+		return result, err
 	}
 
 	defer cur.Close(ctx)
@@ -69,7 +71,7 @@ func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents,
 		var row structs.RoomContents
 		err := cur.Decode(&row)
 		if err != nil {
-			log.Fatal(err)
+			Logger.Logging().Warnw("Can't decode result", "result", err)
 		}
 
 		row.DateStr = utils.TimeFormat(row.Date)
@@ -77,8 +79,10 @@ func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents,
 	}
 
 	if err := cur.Err(); err != nil {
-		log.Fatal(err)
+		Logger.Logging().Warnw("Can't decode result", "result", err)
 	}
+
+	Logger.Logging().Infow("Got roomContents", "result", result)
 
 	return result, err
 }

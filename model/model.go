@@ -2,15 +2,16 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"gorilla/config"
 	"gorilla/structs"
-	"log"
+	"gorilla/utils"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+var Logger *utils.Logger
 
 func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 	credential := options.Credential{
@@ -25,16 +26,17 @@ func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 	defer cancel()
 
 	if err != nil {
-		log.Fatal(err)
+		Logger.Logging().Errorw("MongoDB Connection Failed")
 	}
 
 	// Check the connection
 	err = db.Ping(context.TODO(), nil)
 
 	if err != nil {
-		log.Fatal(err)
+		Logger.Logging().Errorw("MongoDB check ping failed")
 	}
-	fmt.Println("MongoDB Connection Made")
+
+	Logger.Logging().Infow("MongoDB Connection Made")
 	return db
 }
 

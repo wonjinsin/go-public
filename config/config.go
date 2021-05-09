@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"gorilla/utils"
 	"os"
 
 	"github.com/spf13/viper"
@@ -12,6 +12,7 @@ type ViperConfig struct {
 }
 
 var Gorilla *ViperConfig
+var Logger *utils.Logger
 
 func init() {
 	Gorilla = initViperConfig()
@@ -25,7 +26,7 @@ func initViperConfig() *ViperConfig {
 
 	err := v.ReadInConfig()
 	if err != nil {
-		fmt.Println("fatal error config file: default \n", err)
+		Logger.Logging().Errorw("fatal error config file: default")
 		os.Exit(1)
 	}
 

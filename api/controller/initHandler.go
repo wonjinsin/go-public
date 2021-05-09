@@ -2,11 +2,14 @@ package controller
 
 import (
 	"gorilla/config"
+	"gorilla/utils"
 	"strconv"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+var Logger *utils.Logger
 
 type GorillaStatus struct {
 	ResultCode string      `json:"resultCode"`
