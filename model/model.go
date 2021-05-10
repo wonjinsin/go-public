@@ -40,6 +40,11 @@ func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
 	return db
 }
 
+func ctxGenerator() (context.Context, context.CancelFunc) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	return ctx, cancel
+}
+
 type Room interface {
 	SetRoomNo(c context.Context)
 	CheckRoom() (structs.RoomInfo, error)

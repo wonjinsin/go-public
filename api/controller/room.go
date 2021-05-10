@@ -4,6 +4,7 @@ import (
 	"context"
 	"gorilla/config"
 	"gorilla/handler"
+	"gorilla/structs"
 	"gorilla/utils"
 	"strconv"
 
@@ -25,6 +26,7 @@ func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 	}
 
 	eg.GET("/:roomNo", h.Room)
+	eg.POST("/send", h.Send)
 }
 
 func (h *httpRoomController) Room(c echo.Context) error {
@@ -46,4 +48,12 @@ func (h *httpRoomController) Room(c echo.Context) error {
 	}
 
 	return response(c, 200, "Got room Info", result)
+}
+
+func (h *httpRoomController) Create(c echo.Context) structs.RoomContents {
+	roomContents := structs.RoomContents{}
+	roomContents.User = c.FormValue("User")
+	roomContents.Message = c.FormValue("Message")
+
+	return roomContents
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"gorilla/structs"
 	"gorilla/utils"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type RoomModel struct {
@@ -38,7 +38,7 @@ func (rm *RoomModel) SetRoomNo(c context.Context) {
 func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	result := structs.RoomInfo{}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := ctxGenerator()
 	defer cancel()
 
 	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}}).Decode(&result)
@@ -56,7 +56,7 @@ func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents, error) {
 	result := []structs.RoomContents{}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := ctxGenerator()
 	defer cancel()
 
 	cur, err := rm.room_contents.Find(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}})
@@ -83,6 +83,25 @@ func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents,
 	}
 
 	Logger.Logging().Infow("Got roomContents", "result", result)
+
+	return result, err
+}
+
+func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
+	result := structs.RoomContents{}
+
+	ctx, cancel := ctxGenerator()
+	defer cancel()
+
+	opts := options.FindOne().SetSort(bson.M{"Date": -1})
+	err := rm.room_contents.FindOne(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}}, opts).Decode(&result)
+
+	if err != nil {
+		Logger.Logging().Warnw("No recent one", "result", err)
+		return result, err
+	}
+
+	Logger.Logging().Infow("Got recent one", "result", result)
 
 	return result, err
 }
