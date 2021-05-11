@@ -44,3 +44,13 @@ func (rh *RoomHandler) GetRoom(ctx context.Context) (structs.RoomInfo, error) {
 
 	return roomInfo, err
 }
+
+func (rh *RoomHandler) SendMessage(ctx context.Context) error {
+	err := rh.md.SendMessage(ctx)
+
+	if err != nil {
+		Logger.Logging().Warnw("Insert message error", "result", err)
+	}
+
+	return err
+}

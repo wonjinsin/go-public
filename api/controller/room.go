@@ -50,10 +50,22 @@ func (h *httpRoomController) Room(c echo.Context) error {
 	return response(c, 200, "Got room Info", result)
 }
 
-func (h *httpRoomController) Create(c echo.Context) structs.RoomContents {
-	roomContents := structs.RoomContents{}
-	roomContents.User = c.FormValue("User")
-	roomContents.Message = c.FormValue("Message")
+func (h *httpRoomController) Send(c echo.Context) error {
+	roomSendInfo := structs.RoomSendInfo{}
+	roomSendInfo.RoomNo = 1
+	roomSendInfo.User = "Wonjinsin"
+	roomSendInfo.Message = "Test message"
+	roomSendInfo.Date = utils.GetNow()
 
-	return roomContents
+	var key utils.StringKey = "sendInfo"
+	ctx := c.Request().Context()
+	ctx = context.WithValue(ctx, key, roomSendInfo)
+
+	err := h.rh.SendMessage(ctx)
+
+	if err != nil {
+		return response(c, 404, "Insert message failed", err)
+	}
+
+	return response(c, 200, "Success insert message", roomSendInfo)
 }

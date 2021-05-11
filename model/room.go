@@ -31,17 +31,17 @@ func NewRoomModel(db *mongo.Client) *RoomModel {
 	return rm
 }
 
-func (rm *RoomModel) SetRoomNo(c context.Context) {
-	rm.roomNo = c.Value(utils.IntKey(1)).(int)
+func (rm *RoomModel) SetRoomNo(ctx context.Context) {
+	rm.roomNo = ctx.Value(utils.IntKey(1)).(int)
 }
 
 func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	result := structs.RoomInfo{}
 
-	ctx, cancel := ctxGenerator()
+	tmpCtx, cancel := ctxGenerator()
 	defer cancel()
 
-	err := rm.room.FindOne(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}}).Decode(&result)
+	err := rm.room.FindOne(tmpCtx, bson.D{{Key: "roomNo", Value: rm.roomNo}}).Decode(&result)
 
 	if err != nil {
 		Logger.Logging().Warnw("No room basic info", "result", err)
@@ -53,21 +53,21 @@ func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	return result, err
 }
 
-func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents, error) {
+func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContents, error) {
 	result := []structs.RoomContents{}
 
-	ctx, cancel := ctxGenerator()
+	tmpCtx, cancel := ctxGenerator()
 	defer cancel()
 
-	cur, err := rm.room_contents.Find(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}})
+	cur, err := rm.room_contents.Find(tmpCtx, bson.D{{Key: "roomNo", Value: rm.roomNo}})
 
 	if err != nil {
 		Logger.Logging().Warnw("No roomContents", "result", err)
 		return result, err
 	}
 
-	defer cur.Close(ctx)
-	for cur.Next(ctx) {
+	defer cur.Close(tmpCtx)
+	for cur.Next(tmpCtx) {
 		var row structs.RoomContents
 		err := cur.Decode(&row)
 		if err != nil {
@@ -90,11 +90,11 @@ func (rm *RoomModel) GetRoomContents(c context.Context) ([]structs.RoomContents,
 func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
 	result := structs.RoomContents{}
 
-	ctx, cancel := ctxGenerator()
+	tmpCtx, cancel := ctxGenerator()
 	defer cancel()
 
 	opts := options.FindOne().SetSort(bson.M{"Date": -1})
-	err := rm.room_contents.FindOne(ctx, bson.D{{Key: "roomNo", Value: rm.roomNo}}, opts).Decode(&result)
+	err := rm.room_contents.FindOne(tmpCtx, bson.D{{Key: "roomNo", Value: rm.roomNo}}, opts).Decode(&result)
 
 	if err != nil {
 		Logger.Logging().Warnw("No recent one", "result", err)
@@ -104,4 +104,15 @@ func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
 	Logger.Logging().Infow("Got recent one", "result", result)
 
 	return result, err
+}
+
+func (rm *RoomModel) SendMessage(ctx context.Context) error {
+	roomSendInfo := ctx.Value(utils.StringKey("sendInfo"))
+	_, err := rm.room_contents.InsertOne(ctx, roomSendInfo)
+
+	if err != nil {
+		Logger.Logging().Warnw("Can't insert message", "result", err)
+	}
+
+	return err
 }

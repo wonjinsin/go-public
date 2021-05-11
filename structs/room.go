@@ -14,3 +14,10 @@ type RoomContents struct {
 	Date    time.Time `json:"date"`
 	DateStr string    `json:"DateStr"`
 }
+
+type RoomSendInfo struct {
+	RoomNo  int       `json:"roomNo"`
+	User    string    `json:"user"`
+	Message string    `json:"message"`
+	Date    time.Time `json:"date"`
+}
