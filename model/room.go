@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"gorilla/structs"
 	"gorilla/utils"
 
@@ -84,7 +85,34 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 
 	Logger.Logging().Infow("Got roomContents", "result", result)
 
+	rm.JoinTest(rm.roomNo)
+
 	return result, err
+}
+
+func (rm *RoomModel) JoinTest(roomNo int) {
+	tmpCtx, cancel := ctxGenerator()
+	defer cancel()
+
+	lookupStage := bson.D{{"$lookup", bson.D{{"from", "user"}, {"localField", "user"}, {"foreignField", "name"}, {"as", "podcast"}}}}
+
+	cur, err := rm.room_contents.Aggregate(tmpCtx, lookupStage)
+
+	fmt.Println("------------------------")
+	fmt.Println(cur)
+	fmt.Println(err)
+
+	for cur.Next(tmpCtx) {
+		var row []bson.M
+		err := cur.Decode(&row)
+		if err != nil {
+			Logger.Logging().Warnw("Can't decode result", "result", err)
+		}
+
+		fmt.Println(row)
+	}
+
+	fmt.Println("------------------------")
 }
 
 func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {

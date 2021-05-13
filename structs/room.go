@@ -16,8 +16,8 @@ type RoomContents struct {
 }
 
 type RoomSendInfo struct {
-	RoomNo  int       `json:"roomNo"`
-	User    string    `json:"user"`
-	Message string    `json:"message"`
-	Date    time.Time `json:"date"`
+	RoomNo  int       `bson:"roomNo"`
+	User    string    `bson:"user"`
+	Message string    `bson:"message"`
+	Date    time.Time `bson:"date"`
 }

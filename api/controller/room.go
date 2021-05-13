@@ -51,17 +51,24 @@ func (h *httpRoomController) Room(c echo.Context) error {
 }
 
 func (h *httpRoomController) Send(c echo.Context) error {
+	roomNoStr := c.FormValue("roomNo")
+	roomNo, err := strconv.Atoi(roomNoStr)
+
+	if err != nil {
+		return response(c, 404, "Parameter should be number", "")
+	}
+
 	roomSendInfo := structs.RoomSendInfo{}
-	roomSendInfo.RoomNo = 1
-	roomSendInfo.User = "Wonjinsin"
-	roomSendInfo.Message = "Test message"
+	roomSendInfo.RoomNo = roomNo
+	roomSendInfo.User = c.FormValue("user")
+	roomSendInfo.Message = c.FormValue("message")
 	roomSendInfo.Date = utils.GetNow()
 
 	var key utils.StringKey = "sendInfo"
 	ctx := c.Request().Context()
 	ctx = context.WithValue(ctx, key, roomSendInfo)
 
-	err := h.rh.SendMessage(ctx)
+	err = h.rh.SendMessage(ctx)
 
 	if err != nil {
 		return response(c, 404, "Insert message failed", err)
