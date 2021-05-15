@@ -68,6 +68,9 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 	}
 
 	defer cur.Close(tmpCtx)
+
+	fmt.Println("real result: ", cur)
+
 	for cur.Next(tmpCtx) {
 		var row structs.RoomContents
 		err := cur.Decode(&row)
@@ -85,8 +88,6 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 
 	Logger.Logging().Infow("Got roomContents", "result", result)
 
-	rm.JoinTest(rm.roomNo)
-
 	return result, err
 }
 
@@ -94,16 +95,23 @@ func (rm *RoomModel) JoinTest(roomNo int) {
 	tmpCtx, cancel := ctxGenerator()
 	defer cancel()
 
-	lookupStage := bson.D{{"$lookup", bson.D{{"from", "user"}, {"localField", "user"}, {"foreignField", "name"}, {"as", "podcast"}}}}
+	project := bson.M{
+		"$lookup": bson.M{
+			"from":         "user",
+			"localField":   "user",
+			"foreignField": "name",
+			"as":           "test",
+		},
+	}
 
-	cur, err := rm.room_contents.Aggregate(tmpCtx, lookupStage)
+	cur, err := rm.room_contents.Aggregate(tmpCtx, []bson.M{
+		project,
+	})
 
-	fmt.Println("------------------------")
-	fmt.Println(cur)
-	fmt.Println(err)
+	Logger.Logging().Warnw("Can't search", "result", err)
 
 	for cur.Next(tmpCtx) {
-		var row []bson.M
+		row := bson.M{}
 		err := cur.Decode(&row)
 		if err != nil {
 			Logger.Logging().Warnw("Can't decode result", "result", err)
@@ -112,7 +120,6 @@ func (rm *RoomModel) JoinTest(roomNo int) {
 		fmt.Println(row)
 	}
 
-	fmt.Println("------------------------")
 }
 
 func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
