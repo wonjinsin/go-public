@@ -2,7 +2,6 @@ package config
 
 import (
 	"gorilla/utils"
-	"os"
 
 	"github.com/spf13/viper"
 )
@@ -23,11 +22,13 @@ func initViperConfig() *ViperConfig {
 	v.SetConfigName("local")
 	viper.SetConfigType("json")
 	v.AddConfigPath("./config/")
+	v.AddConfigPath("../config/")
+
+	v.AutomaticEnv()
 
 	err := v.ReadInConfig()
 	if err != nil {
-		Logger.Logging().Errorw("fatal error config file: default")
-		os.Exit(1)
+		Logger.Logging().Warnw("fatal error config file: default", "err", err)
 	}
 
 	return &ViperConfig{

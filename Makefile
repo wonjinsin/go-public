@@ -1,7 +1,9 @@
 PACKAGE = gorilla
+OS = ${GOOS}
+
 
 vendor-package:
 	go mod vendor
 
 build:
-	go build -o bin/gorilla ./api/main.go
+	GOOS=$(OS) go build -o bin/gorilla ./api/main.go
