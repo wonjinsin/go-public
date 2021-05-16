@@ -50,4 +50,5 @@ type Room interface {
 	CheckRoom() (structs.RoomInfo, error)
 	GetRoomContents(ctx context.Context) ([]structs.RoomContents, error)
 	SendMessage(ctx context.Context) error
+	JoinTest(roomNo int)
 }

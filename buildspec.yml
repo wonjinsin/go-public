@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - GORILLA_REPO=652727777893.dkr.ecr.ap-northeast-2.amazonaws.com/gorilla-dev
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date` for $FRONT_REPO:$IMAGE_TAG:$COMMIT_HASH
+      - docker build -t $GORILLA_REPO:$IMAGE_TAG -t $FRONT_REPO:latest -f ./Dockerfile .
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`
+      - docker push GORILLA_REPO:$IMAGE_TAG
+      - docker push GORILLA_REPO:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"gorilla","imageUri":"%s"}]' $GORILLA_REPO:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+      - imagedefinitions.json
+
