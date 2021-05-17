@@ -25,7 +25,7 @@ phases:
       - docker push $GORILLA_REPO:$IMAGE_TAG
       - docker push $GORILLA_REPO:latest
       - echo Writing image definitions file...
-      - printf '[{"name":"gorilla","imageUri":"%s"}]' $GORILLA_REPO:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"gorilla-dev","imageUri":"%s"}]' $GORILLA_REPO:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
