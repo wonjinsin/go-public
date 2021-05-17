@@ -16,8 +16,8 @@ phases:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date` for $GORILLA_REPO:$IMAGE_TAG:$COMMIT_HASH
-      - make build
-      - docker build --cache-from $GORILLA_REPO:latest --build-arg BUILD_PORT=11101 -t $GORILLA_REPO:latest .
+      - GOOS='linux' make build
+      - docker build --cache-from $GORILLA_REPO:$IMAGE_TAG --build-arg BUILD_PORT=12001 -f $GORILLA_REPO:latest .
   post_build:
     commands:
       - echo Entered the post_build phase...
