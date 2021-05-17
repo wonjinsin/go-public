@@ -22,8 +22,8 @@ phases:
     commands:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
-      - docker push GORILLA_REPO:$IMAGE_TAG
-      - docker push GORILLA_REPO:latest
+      - docker push $GORILLA_REPO:$IMAGE_TAG
+      - docker push $GORILLA_REPO:latest
       - echo Writing image definitions file...
       - printf '[{"name":"gorilla","imageUri":"%s"}]' $GORILLA_REPO:$IMAGE_TAG > imagedefinitions.json
 
