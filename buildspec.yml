@@ -8,13 +8,16 @@ phases:
       - GORILLA_REPO=652727777893.dkr.ecr.ap-northeast-2.amazonaws.com/gorilla-dev
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - make vendor-package
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - docker pull $GORILLA_REPO:latest || true
 
   build:
     commands:
       - echo Entered the build phase...
-      - echo Build started on `date` for $FRONT_REPO:$IMAGE_TAG:$COMMIT_HASH
-      - docker build -t $GORILLA_REPO:$IMAGE_TAG -t $FRONT_REPO:latest -f ./Dockerfile .
+      - echo Build started on `date` for $GORILLA_REPO:$IMAGE_TAG:$COMMIT_HASH
+      - make build
+      - docker build --cache-from $GORILLA_REPO:latest --build-arg BUILD_PORT=11101 -t $GORILLA_REPO:latest .
   post_build:
     commands:
       - echo Entered the post_build phase...
