@@ -46,9 +46,10 @@ func ctxGenerator() (context.Context, context.CancelFunc) {
 }
 
 type Room interface {
-	SetRoomNo(ctx context.Context)
+	SetRoomNo(int)
 	CheckRoom() (structs.RoomInfo, error)
 	GetRoomContents(ctx context.Context) ([]structs.RoomContents, error)
+	CreateRoom(ctx context.Context) error
 	SendMessage(ctx context.Context) error
 	JoinTest(roomNo int)
 }

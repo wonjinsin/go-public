@@ -21,3 +21,8 @@ type RoomSendInfo struct {
 	Message string    `bson:"message"`
 	Date    time.Time `bson:"date"`
 }
+
+type RoomCreateInfo struct {
+	RoomNo int       `bson:"roomNo"`
+	Users  [2]string `bson:"users"`
+}

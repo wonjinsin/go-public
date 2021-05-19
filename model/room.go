@@ -32,8 +32,8 @@ func NewRoomModel(db *mongo.Client) *RoomModel {
 	return rm
 }
 
-func (rm *RoomModel) SetRoomNo(ctx context.Context) {
-	rm.roomNo = ctx.Value(utils.IntKey(1)).(int)
+func (rm *RoomModel) SetRoomNo(num int) {
+	rm.roomNo = num
 }
 
 func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
@@ -141,9 +141,26 @@ func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
 	return result, err
 }
 
+func (rm *RoomModel) CreateRoom(ctx context.Context) error {
+	tmpCtx, cancel := ctxGenerator()
+	defer cancel()
+
+	createRoomInfo := ctx.Value(utils.StringKey("roomCreateInfo"))
+	_, err := rm.room.InsertOne(tmpCtx, createRoomInfo)
+
+	if err != nil {
+		Logger.Logging().Warnw("Can't create room", "result", err)
+	}
+
+	return err
+}
+
 func (rm *RoomModel) SendMessage(ctx context.Context) error {
-	roomSendInfo := ctx.Value(utils.StringKey("sendInfo"))
-	_, err := rm.room_contents.InsertOne(ctx, roomSendInfo)
+	tmpCtx, cancel := ctxGenerator()
+	defer cancel()
+
+	roomSendInfo := ctx.Value(utils.StringKey("roomSendInfo"))
+	_, err := rm.room_contents.InsertOne(tmpCtx, roomSendInfo)
 
 	if err != nil {
 		Logger.Logging().Warnw("Can't insert message", "result", err)
