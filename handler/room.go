@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"gorilla/model"
 	"gorilla/structs"
 	"gorilla/utils"
@@ -50,10 +50,18 @@ func (rh *RoomHandler) GetRoom(ctx context.Context) (structs.RoomInfo, error) {
 }
 
 func (rh *RoomHandler) CreateRoom(ctx context.Context) error {
-	roomNo := ctx.Value(utils.StringKey("roomCreateInfo")) // need fix
-	fmt.Println(roomNo)
+	roomNo := ctx.Value(utils.StringKey("roomCreateInfo")).(structs.RoomCreateInfo).RoomNo
 
-	err := rh.md.CreateRoom(ctx)
+	rh.md.SetRoomNo(roomNo)
+
+	result, err := rh.md.CheckRoom()
+
+	if err == nil {
+		Logger.Logging().Warnw("Room is exist", "result", result)
+		return errors.New("Room is exist")
+	}
+
+	err = rh.md.CreateRoom(ctx)
 
 	if err != nil {
 		Logger.Logging().Warnw("Create room Failed", "result", err)

@@ -28,6 +28,7 @@ func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 	eg.GET("/:roomNo", h.Room)
 	eg.POST("/create", h.Create)
 	eg.POST("/send", h.Send)
+	eg.DELETE("/message/:objectId", h.DeleteMessage)
 }
 
 func (h *httpRoomController) Room(c echo.Context) error {
@@ -109,4 +110,24 @@ func (h *httpRoomController) Send(c echo.Context) error {
 	}
 
 	return response(c, 200, "Success insert message", roomSendInfo)
+}
+
+func (h *httpRoomController) DeleteMessage(c echo.Context) error {
+	objectId := c.FormValue("objectId")
+
+	var key utils.StringKey = "objectId"
+	ctx := c.Request().Context()
+	ctx = context.WithValue(ctx, key, objectId)
+
+	err := h.rh.DeleteMessage(ctx)
+
+	if err != nil {
+		return response(c, 404, "Delete message failed", err)
+	}
+
+	obj := struct {
+		objectId string `json:"objectId"`
+	}{objectId: objectId}
+
+	return response(c, 200, "Success insert message", obj)
 }
