@@ -16,3 +16,7 @@ func GetNow() time.Time {
 
 	return now
 }
+
+func ErrorToStr(err error) string {
+	return err.Error()
+}
