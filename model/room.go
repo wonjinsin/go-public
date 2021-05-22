@@ -2,11 +2,12 @@ package model
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"gorilla/structs"
 	"gorilla/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -69,8 +70,6 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 
 	defer cur.Close(tmpCtx)
 
-	fmt.Println("real result: ", cur)
-
 	for cur.Next(tmpCtx) {
 		var row structs.RoomContents
 		err := cur.Decode(&row)
@@ -116,8 +115,6 @@ func (rm *RoomModel) JoinTest(roomNo int) {
 		if err != nil {
 			Logger.Logging().Warnw("Can't decode result", "result", err)
 		}
-
-		fmt.Println(row)
 	}
 
 }
@@ -164,6 +161,34 @@ func (rm *RoomModel) SendMessage(ctx context.Context) error {
 
 	if err != nil {
 		Logger.Logging().Warnw("Can't insert message", "result", err)
+	}
+
+	return err
+}
+
+func (rm *RoomModel) DeleteMessage(ctx context.Context) error {
+	tmpCtx, cancel := ctxGenerator()
+	defer cancel()
+
+	objectId := ctx.Value(utils.StringKey("roomDeleteInfo")).(structs.RoomDeleteInfo).ObjectId
+	objectIdHex, err := primitive.ObjectIDFromHex(objectId)
+	errMsg := "Can't delete message"
+	noResultMsg := "No result found to delete"
+
+	if err != nil {
+		Logger.Logging().Warnw(errMsg, "result", err)
+		return err
+	}
+
+	result, err := rm.room_contents.DeleteOne(tmpCtx, bson.M{"_id": objectIdHex})
+
+	if result.DeletedCount == 0 {
+		Logger.Logging().Warnw(noResultMsg)
+		return errors.New(noResultMsg + " " + objectId)
+	}
+
+	if err != nil {
+		Logger.Logging().Warnw(errMsg, "result", err)
 	}
 
 	return err

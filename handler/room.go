@@ -79,3 +79,13 @@ func (rh *RoomHandler) SendMessage(ctx context.Context) error {
 
 	return err
 }
+
+func (rh *RoomHandler) DeleteMessage(ctx context.Context) error {
+	err := rh.md.DeleteMessage(ctx)
+
+	if err != nil {
+		Logger.Logging().Warnw("Delete message failed", "result", err)
+	}
+
+	return err
+}

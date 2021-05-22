@@ -27,7 +27,6 @@ func InitHandler(Gorilla *config.ViperConfig, e *echo.Echo, db *mongo.Client) {
 }
 
 func response(c echo.Context, code int, resultMsg string, resultData interface{}) error {
-
 	strCode := strconv.Itoa(code)
 
 	res := GorillaStatus{
@@ -37,5 +36,4 @@ func response(c echo.Context, code int, resultMsg string, resultData interface{}
 	}
 
 	return c.JSON(code, res)
-
 }

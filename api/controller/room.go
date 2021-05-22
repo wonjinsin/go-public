@@ -113,21 +113,21 @@ func (h *httpRoomController) Send(c echo.Context) error {
 }
 
 func (h *httpRoomController) DeleteMessage(c echo.Context) error {
-	objectId := c.FormValue("objectId")
+	objectId := c.Param("objectId")
 
-	var key utils.StringKey = "objectId"
+	obj := structs.RoomDeleteInfo{
+		ObjectId: objectId,
+	}
+
+	var key utils.StringKey = "roomDeleteInfo"
 	ctx := c.Request().Context()
-	ctx = context.WithValue(ctx, key, objectId)
+	ctx = context.WithValue(ctx, key, obj)
 
 	err := h.rh.DeleteMessage(ctx)
 
 	if err != nil {
 		return response(c, 404, "Delete message failed", err)
 	}
-
-	obj := struct {
-		objectId string `json:"objectId"`
-	}{objectId: objectId}
 
 	return response(c, 200, "Success insert message", obj)
 }

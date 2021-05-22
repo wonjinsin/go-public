@@ -26,3 +26,7 @@ type RoomCreateInfo struct {
 	RoomNo int       `bson:"roomNo"`
 	Users  [2]string `bson:"users"`
 }
+
+type RoomDeleteInfo struct {
+	ObjectId string `bson:"objectId"`
+}
