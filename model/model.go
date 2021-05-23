@@ -54,3 +54,5 @@ type Room interface {
 	DeleteMessage(ctx context.Context) error
 	JoinTest(roomNo int)
 }
+
+type User interface{}

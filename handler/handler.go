@@ -14,3 +14,5 @@ type Room interface {
 	SendMessage(ctx context.Context) error
 	DeleteMessage(ctx context.Context) error
 }
+
+type User interface{}

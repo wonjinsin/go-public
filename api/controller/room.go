@@ -54,15 +54,22 @@ func (h *httpRoomController) Room(c echo.Context) error {
 
 func (h *httpRoomController) Create(c echo.Context) error {
 
-	roomNoStr := c.FormValue("roomNo")
+	roomCreate := &structs.RoomCreate{}
+	err := c.Bind(roomCreate)
+
+	if err != nil {
+		return response(c, 404, "format is not valid", "")
+	}
+
+	roomNoStr := roomCreate.RoomNo
 	roomNo, err := strconv.Atoi(roomNoStr)
 
 	if err != nil {
 		return response(c, 404, "Parameter should be number", "")
 	}
 
-	user1 := c.FormValue("user1")
-	user2 := c.FormValue("user2")
+	user1 := roomCreate.User1
+	user2 := roomCreate.User2
 
 	if user1 == "" || user2 == "" {
 		return response(c, 404, "user is not exist", "")
@@ -86,17 +93,21 @@ func (h *httpRoomController) Create(c echo.Context) error {
 }
 
 func (h *httpRoomController) Send(c echo.Context) error {
-	roomNoStr := c.FormValue("roomNo")
+
+	roomSend := &structs.RoomSend{}
+	c.Bind(roomSend)
+
+	roomNoStr := roomSend.RoomNo
 	roomNo, err := strconv.Atoi(roomNoStr)
 
 	if err != nil {
 		return response(c, 404, "Parameter should be number", "")
 	}
 
-	roomSendInfo := structs.RoomSendInfo{}
+	roomSendInfo := &structs.RoomSendInfo{}
 	roomSendInfo.RoomNo = roomNo
-	roomSendInfo.User = c.FormValue("user")
-	roomSendInfo.Message = c.FormValue("message")
+	roomSendInfo.User = roomSend.User
+	roomSendInfo.Message = roomSend.Message
 	roomSendInfo.Date = utils.GetNow()
 
 	var key utils.StringKey = "roomSendInfo"
