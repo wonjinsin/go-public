@@ -55,4 +55,6 @@ type Room interface {
 	JoinTest(roomNo int)
 }
 
-type User interface{}
+type User interface {
+	GetUser(ctx context.Context) error
+}

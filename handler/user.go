@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"gorilla/model"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,4 +21,15 @@ func NewUserHandler(db *mongo.Client) *UserHandler {
 	}
 
 	return uh
+}
+
+func (uh *UserHandler) Login(ctx context.Context) error {
+	err := uh.md.GetUser(ctx)
+
+	if err != nil {
+		Logger.Logging().Warnw("Fail to Login", "result", err)
+		return err
+	}
+
+	return err
 }
