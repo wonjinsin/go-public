@@ -56,5 +56,5 @@ type Room interface {
 }
 
 type User interface {
-	GetUser(ctx context.Context) error
+	GetUser(ctx context.Context) (structs.User, error)
 }

@@ -2,7 +2,6 @@ package model
 
 import (
 	"context"
-	"fmt"
 	"gorilla/structs"
 	"gorilla/utils"
 
@@ -26,13 +25,12 @@ func NewUserModel(db *mongo.Client) *UserModel {
 	return um
 }
 
-func (um *UserModel) GetUser(ctx context.Context) error {
+func (um *UserModel) GetUser(ctx context.Context) (structs.User, error) {
 	tmpCtx, cancel := ctxGenerator()
 	defer cancel()
 
 	result := structs.User{}
 	loginInfo := ctx.Value(utils.StringKey("loginInfo"))
-	fmt.Println(loginInfo)
 
 	// need fix
 	err := um.user.FindOne(tmpCtx, loginInfo).Decode(&result)
@@ -41,5 +39,5 @@ func (um *UserModel) GetUser(ctx context.Context) error {
 		Logger.Logging().Warnw("User not exist", "result", err)
 	}
 
-	return err
+	return result, err
 }

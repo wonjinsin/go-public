@@ -4,6 +4,7 @@ import (
 	"context"
 	"gorilla/model"
 
+	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,7 +25,7 @@ func NewUserHandler(db *mongo.Client) *UserHandler {
 }
 
 func (uh *UserHandler) Login(ctx context.Context) error {
-	err := uh.md.GetUser(ctx)
+	result, err := uh.md.GetUser(ctx)
 
 	if err != nil {
 		Logger.Logging().Warnw("Fail to Login", "result", err)
@@ -32,4 +33,9 @@ func (uh *UserHandler) Login(ctx context.Context) error {
 	}
 
 	return err
+}
+
+func createToken(user string) (string, error) {
+	// create a signer for rsa 256
+	jwt.New(jwt.GetSigningMethod("RS256"))
 }
