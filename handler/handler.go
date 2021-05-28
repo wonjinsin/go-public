@@ -16,5 +16,5 @@ type Room interface {
 }
 
 type User interface {
-	Login(ctx context.Context) error
+	Login(ctx context.Context) (string, error)
 }

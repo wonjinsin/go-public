@@ -6,4 +6,5 @@ vendor-package:
 	go mod vendor
 
 build:
-	GOOS=$(OS) go build -o bin/gorilla ./api/main.go
+	GOOS=$(OS) go build -o bin/gorilla ./api/main.go && \
+	cp -fpR key bin/.

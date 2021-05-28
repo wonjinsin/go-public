@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"gorilla/model"
 
-	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,18 +24,29 @@ func NewUserHandler(db *mongo.Client) *UserHandler {
 	return uh
 }
 
-func (uh *UserHandler) Login(ctx context.Context) error {
+func (uh *UserHandler) Login(ctx context.Context) (string, error) {
+	var token string
 	result, err := uh.md.GetUser(ctx)
 
 	if err != nil {
 		Logger.Logging().Warnw("Fail to Login", "result", err)
-		return err
+		return token, err
 	}
 
-	return err
-}
+	tk, err := NewTokenHandler()
 
-func createToken(user string) (string, error) {
-	// create a signer for rsa 256
-	jwt.New(jwt.GetSigningMethod("RS256"))
+	if err != nil {
+		Logger.Logging().Warnw("Fail to init tokenHandler", "result", err)
+		return token, err
+	}
+
+	token, err = tk.createToken(result)
+
+	if err != nil {
+		Logger.Logging().Warnw("Fail to createToken", "result", err)
+		return token, err
+	}
+
+	fmt.Println(token)
+	return token, err
 }

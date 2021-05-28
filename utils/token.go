@@ -1,6 +1,6 @@
 package utils
 
 const (
-	privateKeyPath = "key/gorilla.key"
-	publicKeyPath  = "key/gorilla.key.pub"
+	PrivateKeyPath = "key/app.rsa"
+	PublicKeyPath  = "key/app.rsa.pub"
 )
