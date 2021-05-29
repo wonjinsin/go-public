@@ -4,6 +4,8 @@ import (
 	"context"
 	"gorilla/structs"
 	"gorilla/utils"
+
+	"github.com/labstack/echo"
 )
 
 var Logger *utils.Logger
@@ -17,4 +19,10 @@ type Room interface {
 
 type User interface {
 	Login(ctx context.Context) (string, error)
+	Validate(c echo.Context) (structs.User, error)
+}
+
+type Token interface {
+	CreateToken(user structs.User) (string, error)
+	ValidateToken(c echo.Context) (structs.User, error)
 }

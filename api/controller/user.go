@@ -6,6 +6,8 @@ import (
 	"gorilla/handler"
 	"gorilla/structs"
 	"gorilla/utils"
+	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,6 +27,7 @@ func newHTTPUserContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo
 	}
 
 	eg.POST("/login", h.Login)
+	eg.GET("/validate", h.Validate)
 }
 
 func (h *httpUserController) Login(c echo.Context) error {
@@ -47,4 +50,28 @@ func (h *httpUserController) Login(c echo.Context) error {
 	}
 
 	return response(c, 200, "Login Succeed", token)
+}
+
+func ExtractToken(r *http.Request) string {
+	bearToken := r.Header.Get("Authorization")
+	//normally Authorization the_token_xxx
+	strArr := strings.Split(bearToken, " ")
+	if len(strArr) == 2 {
+		return strArr[1]
+	}
+	return ""
+}
+
+func (h *httpUserController) Extract(c echo.Context) error {
+	return response(c, 200, "Validate success", "")
+}
+
+func (h *httpUserController) Validate(c echo.Context) error {
+	user, err := h.uh.Validate(c)
+
+	if err != nil {
+		return response(c, 400, "Validate Failed", err)
+	}
+
+	return response(c, 200, "Validate success", user)
 }

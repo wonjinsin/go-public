@@ -2,13 +2,16 @@ package handler
 
 import (
 	"crypto/rsa"
+	"errors"
 	"fmt"
 	"gorilla/structs"
 	"gorilla/utils"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
 )
 
 type TokenInfo struct {
@@ -18,12 +21,7 @@ type TokenInfo struct {
 
 type TokenFormat struct {
 	*jwt.StandardClaims
-	structs.User
-}
-
-type TokenUser struct {
-	Name string
-	Age  string
+	User structs.User
 }
 
 func NewTokenHandler() (*TokenInfo, error) {
@@ -63,10 +61,8 @@ func NewTokenHandler() (*TokenInfo, error) {
 
 }
 
-func (tk *TokenInfo) createToken(user structs.User) (string, error) {
+func (tk *TokenInfo) CreateToken(user structs.User) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
-
-	fmt.Println(user)
 
 	t.Claims = &TokenFormat{
 		&jwt.StandardClaims{
@@ -76,4 +72,38 @@ func (tk *TokenInfo) createToken(user structs.User) (string, error) {
 	}
 
 	return t.SignedString(tk.signKey)
+}
+
+func (tk *TokenInfo) ValidateToken(c echo.Context) (structs.User, error) {
+	tokenStr, err := tk.getToken(c)
+
+	if err != nil {
+		Logger.Logging().Warnw("Fail to get Baerer token", "result", err)
+		return structs.User{}, err
+	}
+
+	token, err := jwt.ParseWithClaims(tokenStr, &TokenFormat{}, func(token *jwt.Token) (interface{}, error) {
+		return tk.verifyKey, nil
+	})
+
+	if err != nil {
+		Logger.Logging().Warnw("Fail to parse token", "result", err)
+		return structs.User{}, err
+	}
+
+	result := token.Claims.(*TokenFormat).User
+
+	return result, nil
+}
+
+func (tk *TokenInfo) getToken(c echo.Context) (string, error) {
+	bearerToken := c.Request().Header.Get("Authorization")
+
+	strArr := strings.Split(bearerToken, "Bearer ")
+	if len(strArr) == 2 {
+		return strArr[1], nil
+	}
+
+	Logger.Logging().Warnw("Fail to get Baerer token", "result")
+	return "", errors.New("no result")
 }
