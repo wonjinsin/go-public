@@ -7,7 +7,7 @@ type Login struct {
 }
 
 type User struct {
-	ObjectId primitive.ObjectID `json:"objectId"`
+	ObjectId primitive.ObjectID `bson:"_id" json:"objectId"`
 	Age      int                `json:"age"`
 	Name     string             `json:"name"`
 }
