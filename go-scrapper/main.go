@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo"
-	"github.com/wonjinsin/chatapp-backend-go/scrapper"
+	"github.com/wonjinsin/go-public/go-scrapper/scrapper"
 )
 
 const fileName string = "jobs.csv"

@@ -2,7 +2,8 @@ package main
 
 import (
 	"net/http"
-	"github.com/wonjinsin/go-practice-web/test/myapp"
+
+	"github.com/wonjinsin/go-public/go-practice-web/test/myapp"
 )
 
 func main() {

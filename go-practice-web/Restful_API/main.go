@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/wonjinsin/go-practice-web/Restful_API/app"
+	"github.com/wonjinsin/go-public/go-practice-web/Restful_API/myapp"
 )
 
 func main() http.Handler {
-	http.ListenAndServe(":3000", app.NewHandler())
+	http.ListenAndServe(":3000", myapp.NewHandler())
 }
