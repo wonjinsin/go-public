@@ -2,8 +2,8 @@ package model
 
 import (
 	"context"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/structs"
+	"giraffe/utils"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -15,7 +15,7 @@ type UserModel struct {
 
 func NewUserModel(db *mongo.Client) *UserModel {
 
-	user := db.Database("gorilla").Collection("user")
+	user := db.Database("giraffe").Collection("user")
 
 	um := &UserModel{
 		db:   db,

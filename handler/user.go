@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	"gorilla/model"
-	"gorilla/structs"
+	"giraffe/model"
+	"giraffe/structs"
 
 	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/mongo"

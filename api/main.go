@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gorilla/api/controller"
-	"gorilla/config"
-	"gorilla/model"
+	"giraffe/api/controller"
+	"giraffe/config"
+	"giraffe/model"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,14 +15,14 @@ func main() {
 }
 
 func startServer() {
-	Gorilla := config.Gorilla
+	Giraffe := config.Giraffe
 	e := echo.New()
 	e.GET("/healthCheck", func(c echo.Context) error {
 		return c.String(http.StatusOK, "It's working!")
 	})
 
-	db := model.MongoConn(Gorilla)
-	controller.InitHandler(Gorilla, e, db)
+	db := model.MongoConn(Giraffe)
+	controller.InitHandler(Giraffe, e, db)
 
-	e.Start(fmt.Sprintf(":%s", Gorilla.GetString("port")))
+	e.Start(fmt.Sprintf(":%s", Giraffe.GetString("port")))
 }

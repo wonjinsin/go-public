@@ -5,27 +5,27 @@ phases:
     runtime-versions:
       docker: 18
     commands:
-      - GORILLA_REPO=652727777893.dkr.ecr.ap-northeast-2.amazonaws.com/gorilla-dev
+      - GIRAFFE_REPO=652727777893.dkr.ecr.ap-northeast-2.amazonaws.com/giraffe-dev
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
       - make vendor-package
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-      - docker pull $GORILLA_REPO:latest || true
+      - docker pull $GIRAFFE_REPO:latest || true
 
   build:
     commands:
       - echo Entered the build phase...
-      - echo Build started on `date` for $GORILLA_REPO:$IMAGE_TAG:$COMMIT_HASH
+      - echo Build started on `date` for $GIRAFFE_REPO:$IMAGE_TAG:$COMMIT_HASH
       - GOOS='linux' make build
-      - docker build -t $GORILLA_REPO:$IMAGE_TAG -t $GORILLA_REPO:latest --build-arg BUILD_PORT=12001 .
+      - docker build -t $GIRAFFE_REPO:$IMAGE_TAG -t $GIRAFFE_REPO:latest --build-arg BUILD_PORT=12001 .
   post_build:
     commands:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
-      - docker push $GORILLA_REPO:$IMAGE_TAG
-      - docker push $GORILLA_REPO:latest
+      - docker push $GIRAFFE_REPO:$IMAGE_TAG
+      - docker push $GIRAFFE_REPO:latest
       - echo Writing image definitions file...
-      - printf '[{"name":"gorilla-dev","imageUri":"%s"}]' $GORILLA_REPO:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"giraffe-dev","imageUri":"%s"}]' $GIRAFFE_REPO:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:

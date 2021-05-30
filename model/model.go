@@ -2,9 +2,9 @@ package model
 
 import (
 	"context"
-	"gorilla/config"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/config"
+	"giraffe/structs"
+	"giraffe/utils"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,12 +13,12 @@ import (
 
 var Logger *utils.Logger
 
-func MongoConn(Gorilla *config.ViperConfig) (db *mongo.Client) {
+func MongoConn(Giraffe *config.ViperConfig) (db *mongo.Client) {
 	credential := options.Credential{
-		Username: Gorilla.GetString("db_user"),
-		Password: Gorilla.GetString("db_pass"),
+		Username: Giraffe.GetString("db_user"),
+		Password: Giraffe.GetString("db_pass"),
 	}
-	applyUri := Gorilla.GetString("db_host") + ":" + Gorilla.GetString("db_port")
+	applyUri := Giraffe.GetString("db_host") + ":" + Giraffe.GetString("db_port")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	clientOptions := options.Client().ApplyURI("mongodb://" + applyUri).SetAuth(credential)

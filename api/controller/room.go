@@ -2,10 +2,10 @@ package controller
 
 import (
 	"context"
-	"gorilla/config"
-	"gorilla/handler"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/config"
+	"giraffe/handler"
+	"giraffe/structs"
+	"giraffe/utils"
 	"strconv"
 
 	"github.com/labstack/echo"
@@ -17,7 +17,7 @@ type httpRoomController struct {
 	rh handler.Room
 }
 
-func newHTTPRoomContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
+func newHTTPRoomContoller(giraffe *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
 	rh := handler.NewRoomHandler(db)
 
 	h := &httpRoomController{

@@ -3,8 +3,8 @@ package model
 import (
 	"context"
 	"errors"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/structs"
+	"giraffe/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -21,8 +21,8 @@ type RoomModel struct {
 
 func NewRoomModel(db *mongo.Client) *RoomModel {
 
-	room := db.Database("gorilla").Collection("room")
-	room_contents := db.Database("gorilla").Collection("room_contents")
+	room := db.Database("giraffe").Collection("room")
+	room_contents := db.Database("giraffe").Collection("room_contents")
 
 	rm := &RoomModel{
 		db:            db,

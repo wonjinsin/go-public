@@ -1,16 +1,16 @@
 version: '3'
 services:
-  gorilla:
+  giraffe:
     build: .
-    image: gorilla
-    container_name: gorilla
+    image: giraffe
+    container_name: giraffe
     ports:
       - "12001:12001"
     environment:
       - PORT=12001
       - DB_HOST=mongodb
       - DB_PORT=27017
-      - DB_NAME=gorilla
+      - DB_NAME=giraffe
       - DB_USER=root
       - DB_PASS=mongodbpass
     healthcheck:

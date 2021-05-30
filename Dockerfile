@@ -1,8 +1,8 @@
 FROM golang
-RUN mkdir /gorilla
-WORKDIR /gorilla
-ADD bin/gorilla gorilla
+RUN mkdir /giraffe
+WORKDIR /giraffe
+ADD bin/giraffe giraffe
 ARG BUILD_PORT
 ENV PORT $BUILD_PORT
 EXPOSE $BUILD_PORT
-ENTRYPOINT ["./gorilla"]
+ENTRYPOINT ["./giraffe"]

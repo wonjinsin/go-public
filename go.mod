@@ -1,4 +1,4 @@
-module gorilla
+module giraffe
 
 go 1.15
 

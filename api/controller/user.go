@@ -2,10 +2,10 @@ package controller
 
 import (
 	"context"
-	"gorilla/config"
-	"gorilla/handler"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/config"
+	"giraffe/handler"
+	"giraffe/structs"
+	"giraffe/utils"
 	"net/http"
 	"strings"
 
@@ -18,7 +18,7 @@ type httpUserController struct {
 	uh handler.User
 }
 
-func newHTTPUserContoller(gorilla *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
+func newHTTPUserContoller(giraffe *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
 	uh := handler.NewUserHandler(db)
 
 	h := &httpUserController{

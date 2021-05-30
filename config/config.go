@@ -1,7 +1,7 @@
 package config
 
 import (
-	"gorilla/utils"
+	"giraffe/utils"
 
 	"github.com/spf13/viper"
 )
@@ -10,11 +10,11 @@ type ViperConfig struct {
 	*viper.Viper
 }
 
-var Gorilla *ViperConfig
+var Giraffe *ViperConfig
 var Logger *utils.Logger
 
 func init() {
-	Gorilla = initViperConfig()
+	Giraffe = initViperConfig()
 }
 
 func initViperConfig() *ViperConfig {

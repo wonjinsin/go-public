@@ -2,8 +2,8 @@ package handler
 
 import (
 	"context"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/structs"
+	"giraffe/utils"
 
 	"github.com/labstack/echo"
 )

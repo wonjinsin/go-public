@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"gorilla/config"
-	"gorilla/utils"
+	"giraffe/config"
+	"giraffe/utils"
 	"strconv"
 
 	"github.com/labstack/echo"
@@ -11,27 +11,27 @@ import (
 
 var Logger *utils.Logger
 
-type GorillaStatus struct {
+type GiraffeStatus struct {
 	ResultCode string      `json:"resultCode"`
 	ResultMsg  string      `json:"resultMsg"`
 	ResultData interface{} `json:"resultData,omitempty"`
 }
 
-func InitHandler(Gorilla *config.ViperConfig, e *echo.Echo, db *mongo.Client) {
+func InitHandler(Giraffe *config.ViperConfig, e *echo.Echo, db *mongo.Client) {
 
 	api := e.Group("/api")
 	ver1 := api.Group("/v1")
 
 	room := ver1.Group("/room")
 	user := ver1.Group("/user")
-	newHTTPRoomContoller(Gorilla, room, db)
-	newHTTPUserContoller(Gorilla, user, db)
+	newHTTPRoomContoller(Giraffe, room, db)
+	newHTTPUserContoller(Giraffe, user, db)
 }
 
 func response(c echo.Context, code int, resultMsg string, resultData interface{}) error {
 	strCode := strconv.Itoa(code)
 
-	res := GorillaStatus{
+	res := GiraffeStatus{
 		ResultCode: strCode,
 		ResultMsg:  resultMsg,
 		ResultData: resultData,

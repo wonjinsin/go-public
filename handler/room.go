@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 	"errors"
-	"gorilla/model"
-	"gorilla/structs"
-	"gorilla/utils"
+	"giraffe/model"
+	"giraffe/structs"
+	"giraffe/utils"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
