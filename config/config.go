@@ -23,6 +23,8 @@ func initViperConfig() *ViperConfig {
 	viper.SetConfigType("json")
 	v.AddConfigPath("./config/")
 	v.AddConfigPath("../config/")
+	v.AddConfigPath("../../config/")
+	v.AddConfigPath("../../../config/")
 
 	v.AutomaticEnv()
 
