@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
+	"giraffe/config"
 	"giraffe/structs"
 	"giraffe/utils"
 	"io/ioutil"
@@ -24,10 +25,19 @@ type TokenFormat struct {
 	User structs.User
 }
 
-func NewTokenHandler() (*TokenInfo, error) {
-	signBytes, err := ioutil.ReadFile(fmt.Sprintf("./%s", utils.PrivateKeyPath))
-	tokenInfo := &TokenInfo{}
+func NewTokenHandler(giraffe *config.ViperConfig) (*TokenInfo, error) {
 
+	tokenInfo := &TokenInfo{}
+	privateKey := utils.PrivateKeyPath
+	publicKey := utils.PublicKeyPath
+
+	if giraffe.GetString("giraffe_env") == "local" {
+		absPath := giraffe.GetString("absPath")
+		privateKey = fmt.Sprintf("%s/key/app.rsa", absPath)
+		publicKey = fmt.Sprintf("%s/key/app.rsa.pub", absPath)
+	}
+
+	signBytes, err := ioutil.ReadFile(privateKey)
 	if err != nil {
 		Logger.Logging().Warnw("Fail to Read PrivateKeyFile", "result", err)
 		return tokenInfo, err
@@ -39,8 +49,7 @@ func NewTokenHandler() (*TokenInfo, error) {
 		return tokenInfo, err
 	}
 
-	verifyBytes, err := ioutil.ReadFile(fmt.Sprintf("./%s", utils.PublicKeyPath))
-
+	verifyBytes, err := ioutil.ReadFile(publicKey)
 	if err != nil {
 		Logger.Logging().Warnw("Fail to Read PublickeyFile", "result", err)
 		return tokenInfo, err

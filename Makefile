@@ -8,3 +8,6 @@ vendor-package:
 build:
 	GOOS=$(OS) go build -o bin/giraffe ./api/main.go && \
 	cp -fpR key bin/.
+
+test-all:
+	go test -v ./...

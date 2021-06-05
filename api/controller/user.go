@@ -19,7 +19,7 @@ type httpUserController struct {
 }
 
 func newHTTPUserContoller(giraffe *config.ViperConfig, eg *echo.Group, db *mongo.Client) {
-	uh := handler.NewUserHandler(db)
+	uh := handler.NewUserHandler(db, giraffe)
 
 	h := &httpUserController{
 		db: db,

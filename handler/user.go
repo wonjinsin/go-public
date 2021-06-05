@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"giraffe/config"
 	"giraffe/model"
 	"giraffe/structs"
 
@@ -10,24 +11,27 @@ import (
 )
 
 type UserHandler struct {
-	db *mongo.Client
-	md model.User
-	tk Token
+	db      *mongo.Client
+	md      model.User
+	tk      Token
+	giraffe *config.ViperConfig
 }
 
-func NewUserHandler(db *mongo.Client) *UserHandler {
+func NewUserHandler(db *mongo.Client, giraffe *config.ViperConfig) *UserHandler {
 	md := model.NewUserModel(db)
-	tk, err := NewTokenHandler()
+	uh := &UserHandler{
+		db:      db,
+		md:      md,
+		giraffe: giraffe,
+	}
+
+	tk, err := NewTokenHandler(uh.giraffe)
 
 	if err != nil {
 		Logger.Logging().Errorw("Fail to init tokenHandler", "result", err)
 	}
 
-	uh := &UserHandler{
-		db: db,
-		md: md,
-		tk: tk,
-	}
+	uh.tk = tk
 
 	return uh
 }

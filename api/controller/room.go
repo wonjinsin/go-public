@@ -28,6 +28,7 @@ func newHTTPRoomContoller(giraffe *config.ViperConfig, eg *echo.Group, db *mongo
 	eg.GET("/:roomNo", h.Room)
 	eg.POST("/create", h.Create)
 	eg.POST("/send", h.Send)
+	eg.DELETE("/delete/:roomNo", h.DeleteRoom)
 	eg.DELETE("/message/:objectId", h.DeleteMessage)
 }
 
@@ -121,6 +122,10 @@ func (h *httpRoomController) Send(c echo.Context) error {
 	}
 
 	return response(c, 200, "Success insert message", roomSendInfo)
+}
+
+func (h *httpRoomController) DeleteRoom(c echo.Context) error {
+	return response(c, 200, "Success DeleteRoom", "")
 }
 
 func (h *httpRoomController) DeleteMessage(c echo.Context) error {
