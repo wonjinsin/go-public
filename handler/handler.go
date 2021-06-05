@@ -14,6 +14,7 @@ type Room interface {
 	GetRoom(ctx context.Context) (structs.RoomInfo, error)
 	CreateRoom(ctx context.Context) error
 	SendMessage(ctx context.Context) error
+	DeleteRoom(ctx context.Context) error
 	DeleteMessage(ctx context.Context) error
 }
 

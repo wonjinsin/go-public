@@ -54,7 +54,6 @@ func TestCreate(t *testing.T) {
 }
 
 func TestDeleteRoom(t *testing.T) {
-
 	roomNo := "14"
 	assert := assert.New(t)
 

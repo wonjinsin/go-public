@@ -118,13 +118,30 @@ func (h *httpRoomController) Send(c echo.Context) error {
 	err = h.rh.SendMessage(ctx)
 
 	if err != nil {
-		return response(c, 404, "Insert message failed", utils.ErrorToStr(err))
+		return response(c, 404, "Failed to insert message", utils.ErrorToStr(err))
 	}
 
 	return response(c, 200, "Success insert message", roomSendInfo)
 }
 
 func (h *httpRoomController) DeleteRoom(c echo.Context) error {
+	roomNoStr := c.Param("roomNo")
+	roomNo, err := strconv.Atoi(roomNoStr)
+
+	if err != nil {
+		return response(c, 404, "Parameter should be a number", "")
+	}
+
+	var key utils.IntKey = 1
+	ctx := c.Request().Context()
+	ctx = context.WithValue(ctx, key, roomNo)
+
+	err = h.rh.DeleteRoom(ctx)
+
+	if err != nil {
+		return response(c, 404, "Failed to delete room", "")
+	}
+
 	return response(c, 200, "Success DeleteRoom", "")
 }
 

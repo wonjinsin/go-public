@@ -26,7 +26,7 @@ func NewUserModel(db *mongo.Client) *UserModel {
 }
 
 func (um *UserModel) GetUser(ctx context.Context) (structs.User, error) {
-	tmpCtx, cancel := ctxGenerator()
+	tmpCtx, cancel := CtxGenerator()
 	defer cancel()
 
 	result := structs.User{}

@@ -80,6 +80,10 @@ func (rh *RoomHandler) SendMessage(ctx context.Context) error {
 	return err
 }
 
+func (rh *RoomHandler) DeleteRoom(ctx context.Context) error {
+	return errors.New("test")
+}
+
 func (rh *RoomHandler) DeleteMessage(ctx context.Context) error {
 	err := rh.md.DeleteMessage(ctx)
 
