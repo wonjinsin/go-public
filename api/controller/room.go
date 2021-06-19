@@ -59,21 +59,21 @@ func (h *httpRoomController) Create(c echo.Context) error {
 	err := c.Bind(roomCreate)
 
 	if err != nil {
-		return response(c, 404, "format is not valid", "")
+		return response(c, 404, "format is not valid")
 	}
 
 	roomNoStr := roomCreate.RoomNo
 	roomNo, err := strconv.Atoi(roomNoStr)
 
 	if err != nil {
-		return response(c, 404, "Parameter should be number", "")
+		return response(c, 404, "Parameter should be number")
 	}
 
 	user1 := roomCreate.User1
 	user2 := roomCreate.User2
 
 	if user1 == "" || user2 == "" {
-		return response(c, 404, "user is not exist", "")
+		return response(c, 404, "user is not exist")
 	}
 
 	roomCreateInfo := structs.RoomCreateInfo{}
@@ -113,7 +113,7 @@ func (h *httpRoomController) Send(c echo.Context) error {
 
 	var key utils.StringKey = "roomSendInfo"
 	ctx := c.Request().Context()
-	ctx = context.WithValue(ctx, key, &roomSendInfo)
+	ctx = context.WithValue(ctx, key, roomSendInfo)
 
 	err = h.rh.SendMessage(ctx)
 
@@ -129,7 +129,7 @@ func (h *httpRoomController) DeleteRoom(c echo.Context) error {
 	roomNo, err := strconv.Atoi(roomNoStr)
 
 	if err != nil {
-		return response(c, 404, "Parameter should be a number", "")
+		return response(c, 404, "Parameter should be a number")
 	}
 
 	var key utils.IntKey = 1
@@ -139,10 +139,10 @@ func (h *httpRoomController) DeleteRoom(c echo.Context) error {
 	err = h.rh.DeleteRoom(ctx)
 
 	if err != nil {
-		return response(c, 404, "Failed to delete room", "")
+		return response(c, 404, "Failed to delete room")
 	}
 
-	return response(c, 200, "Success DeleteRoom", "")
+	return response(c, 200, "Success DeleteRoom")
 }
 
 func (h *httpRoomController) DeleteMessage(c echo.Context) error {
@@ -159,7 +159,7 @@ func (h *httpRoomController) DeleteMessage(c echo.Context) error {
 	err := h.rh.DeleteMessage(ctx)
 
 	if err != nil {
-		return response(c, 404, "Delete message failed", utils.ErrorToStr(err))
+		return response(c, 405, "Delete message failed", utils.ErrorToStr(err))
 	}
 
 	return response(c, 200, "Success insert message", obj)

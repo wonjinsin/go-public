@@ -40,11 +40,6 @@ func MongoConn(Giraffe *config.ViperConfig) (db *mongo.Client) {
 	return db
 }
 
-func CtxGenerator() (context.Context, context.CancelFunc) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	return ctx, cancel
-}
-
 type Room interface {
 	SetRoomNo(int)
 	CheckRoom() (structs.RoomInfo, error)

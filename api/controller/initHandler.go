@@ -43,7 +43,7 @@ func initHandler(Giraffe *config.ViperConfig, e *echo.Echo, db *mongo.Client) {
 	newHTTPUserContoller(Giraffe, user, db)
 }
 
-func response(c echo.Context, code int, resultMsg string, resultData interface{}) error {
+func response(c echo.Context, code int, resultMsg string, resultData ...interface{}) error {
 	strCode := strconv.Itoa(code)
 
 	res := GiraffeStatus{

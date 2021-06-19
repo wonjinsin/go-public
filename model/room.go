@@ -40,7 +40,7 @@ func (rm *RoomModel) SetRoomNo(num int) {
 func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	result := structs.RoomInfo{}
 
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	err := rm.room.FindOne(tmpCtx, bson.D{{Key: "roomNo", Value: rm.roomNo}}).Decode(&result)
@@ -58,7 +58,7 @@ func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContents, error) {
 	result := []structs.RoomContents{}
 
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	cur, err := rm.room_contents.Find(tmpCtx, bson.D{{Key: "roomNo", Value: rm.roomNo}})
@@ -91,7 +91,7 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 }
 
 func (rm *RoomModel) JoinTest(roomNo int) {
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	project := bson.M{
@@ -122,7 +122,7 @@ func (rm *RoomModel) JoinTest(roomNo int) {
 func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
 	result := structs.RoomContents{}
 
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	opts := options.FindOne().SetSort(bson.M{"Date": -1})
@@ -139,7 +139,7 @@ func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
 }
 
 func (rm *RoomModel) CreateRoom(ctx context.Context) error {
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	createRoomInfo := ctx.Value(utils.StringKey("roomCreateInfo"))
@@ -153,7 +153,7 @@ func (rm *RoomModel) CreateRoom(ctx context.Context) error {
 }
 
 func (rm *RoomModel) SendMessage(ctx context.Context) error {
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	roomSendInfo := ctx.Value(utils.StringKey("roomSendInfo"))
@@ -167,7 +167,7 @@ func (rm *RoomModel) SendMessage(ctx context.Context) error {
 }
 
 func (rm *RoomModel) DeleteMessage(ctx context.Context) error {
-	tmpCtx, cancel := CtxGenerator()
+	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	objectId := ctx.Value(utils.StringKey("roomDeleteInfo")).(structs.RoomDeleteInfo).ObjectId
