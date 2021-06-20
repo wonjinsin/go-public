@@ -68,10 +68,27 @@ func TestSendMessage(t *testing.T) {
 	}
 }
 
-func TestDeleteMessage(t *testing.T) {
+func TestDeleteRoom(t *testing.T) {
 	assert := assert.New(t)
 
 	var key utils.StringKey = "roomDeleteInfo"
+	roomDeleteInfo := structs.RoomDeleteInfo{
+		ObjectId: "60b3a12145f2f7d32a2a33c8",
+	}
+	ctx, _ := utils.CtxGenerator()
+	ctx = context.WithValue(ctx, key, roomDeleteInfo)
+
+	err := rh.DeleteRoom(ctx)
+
+	if !assert.NoError(err) {
+		utils.PrintError(err)
+	}
+}
+
+func TestDeleteMessage(t *testing.T) {
+	assert := assert.New(t)
+
+	var key utils.StringKey = "messageDeleteInfo"
 	roomDeleteInfo := structs.RoomDeleteInfo{
 		ObjectId: "60cdd8399cb62167970f1451",
 	}

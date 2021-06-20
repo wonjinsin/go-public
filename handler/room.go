@@ -37,7 +37,7 @@ func (rh *RoomHandler) GetRoom(ctx context.Context) (structs.RoomInfo, error) {
 		return roomInfo, err
 	}
 
-	roomContents, err := rh.md.GetRoomContents(ctx)
+	roomContents, err := rh.md.GetRoomContents()
 	if err != nil {
 		Logger.Logging().Warnw("Got roomContents error", "result", err)
 		return roomInfo, err
@@ -81,7 +81,13 @@ func (rh *RoomHandler) SendMessage(ctx context.Context) error {
 }
 
 func (rh *RoomHandler) DeleteRoom(ctx context.Context) error {
-	return nil
+	err := rh.md.DeleteRoom(ctx)
+
+	if err != nil {
+		Logger.Logging().Warnw("Delete room failed", "result", err)
+	}
+
+	return err
 }
 
 func (rh *RoomHandler) DeleteMessage(ctx context.Context) error {

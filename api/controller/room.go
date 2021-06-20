@@ -152,7 +152,7 @@ func (h *httpRoomController) DeleteMessage(c echo.Context) error {
 		ObjectId: objectId,
 	}
 
-	var key utils.StringKey = "roomDeleteInfo"
+	var key utils.StringKey = "messageDeleteInfo"
 	ctx := c.Request().Context()
 	ctx = context.WithValue(ctx, key, obj)
 

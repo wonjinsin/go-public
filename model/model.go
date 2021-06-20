@@ -43,9 +43,10 @@ func MongoConn(Giraffe *config.ViperConfig) (db *mongo.Client) {
 type Room interface {
 	SetRoomNo(int)
 	CheckRoom() (structs.RoomInfo, error)
-	GetRoomContents(ctx context.Context) ([]structs.RoomContents, error)
+	GetRoomContents() ([]structs.RoomContents, error)
 	CreateRoom(ctx context.Context) error
 	SendMessage(ctx context.Context) error
+	DeleteRoom(ctx context.Context) error
 	DeleteMessage(ctx context.Context) error
 	JoinTest(roomNo int)
 }

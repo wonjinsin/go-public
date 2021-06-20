@@ -55,7 +55,7 @@ func (rm *RoomModel) CheckRoom() (structs.RoomInfo, error) {
 	return result, err
 }
 
-func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContents, error) {
+func (rm *RoomModel) GetRoomContents() ([]structs.RoomContents, error) {
 	result := []structs.RoomContents{}
 
 	tmpCtx, cancel := utils.CtxGenerator()
@@ -88,35 +88,6 @@ func (rm *RoomModel) GetRoomContents(ctx context.Context) ([]structs.RoomContent
 	Logger.Logging().Infow("Got roomContents", "result", result)
 
 	return result, err
-}
-
-func (rm *RoomModel) JoinTest(roomNo int) {
-	tmpCtx, cancel := utils.CtxGenerator()
-	defer cancel()
-
-	project := bson.M{
-		"$lookup": bson.M{
-			"from":         "user",
-			"localField":   "user",
-			"foreignField": "name",
-			"as":           "test",
-		},
-	}
-
-	cur, err := rm.room_contents.Aggregate(tmpCtx, []bson.M{
-		project,
-	})
-
-	Logger.Logging().Warnw("Can't search", "result", err)
-
-	for cur.Next(tmpCtx) {
-		row := bson.M{}
-		err := cur.Decode(&row)
-		if err != nil {
-			Logger.Logging().Warnw("Can't decode result", "result", err)
-		}
-	}
-
 }
 
 func (rm *RoomModel) GetRecentOne() (structs.RoomContents, error) {
@@ -166,11 +137,39 @@ func (rm *RoomModel) SendMessage(ctx context.Context) error {
 	return err
 }
 
-func (rm *RoomModel) DeleteMessage(ctx context.Context) error {
+func (rm *RoomModel) DeleteRoom(ctx context.Context) error {
 	tmpCtx, cancel := utils.CtxGenerator()
 	defer cancel()
 
 	objectId := ctx.Value(utils.StringKey("roomDeleteInfo")).(structs.RoomDeleteInfo).ObjectId
+	objectIdHex, err := primitive.ObjectIDFromHex(objectId)
+	errMsg := "Can't delete room"
+	noResultMsg := "No result found to delete"
+
+	if err != nil {
+		Logger.Logging().Warnw(errMsg, "result", err)
+		return err
+	}
+
+	result, err := rm.room.DeleteOne(tmpCtx, bson.M{"_id": objectIdHex})
+
+	if result.DeletedCount == 0 {
+		Logger.Logging().Warnw(noResultMsg)
+		return errors.New(noResultMsg + " " + objectId)
+	}
+
+	if err != nil {
+		Logger.Logging().Warnw(errMsg, "result", err)
+	}
+
+	return err
+}
+
+func (rm *RoomModel) DeleteMessage(ctx context.Context) error {
+	tmpCtx, cancel := utils.CtxGenerator()
+	defer cancel()
+
+	objectId := ctx.Value(utils.StringKey("messageDeleteInfo")).(structs.RoomDeleteInfo).ObjectId
 	objectIdHex, err := primitive.ObjectIDFromHex(objectId)
 	errMsg := "Can't delete message"
 	noResultMsg := "No result found to delete"
@@ -192,4 +191,34 @@ func (rm *RoomModel) DeleteMessage(ctx context.Context) error {
 	}
 
 	return err
+}
+
+// Mongodb join test
+func (rm *RoomModel) JoinTest(roomNo int) {
+	tmpCtx, cancel := utils.CtxGenerator()
+	defer cancel()
+
+	project := bson.M{
+		"$lookup": bson.M{
+			"from":         "user",
+			"localField":   "user",
+			"foreignField": "name",
+			"as":           "test",
+		},
+	}
+
+	cur, err := rm.room_contents.Aggregate(tmpCtx, []bson.M{
+		project,
+	})
+
+	Logger.Logging().Warnw("Can't search", "result", err)
+
+	for cur.Next(tmpCtx) {
+		row := bson.M{}
+		err := cur.Decode(&row)
+		if err != nil {
+			Logger.Logging().Warnw("Can't decode result", "result", err)
+		}
+	}
+
 }
