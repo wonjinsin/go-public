@@ -1,0 +1,33 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - GIRAFFE_REPO=652727777893.dkr.ecr.ap-northeast-2.amazonaws.com/giraffe-dev
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - make vendor-package
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - docker pull $GIRAFFE_REPO:latest || true
+
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date` for $GIRAFFE_REPO:$IMAGE_TAG:$COMMIT_HASH
+      - GOOS='linux' make build
+      - docker build -t $GIRAFFE_REPO:$IMAGE_TAG -t $GIRAFFE_REPO:latest --build-arg BUILD_PORT=12001 .
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`
+      - docker push $GIRAFFE_REPO:$IMAGE_TAG
+      - docker push $GIRAFFE_REPO:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"giraffe-dev","imageUri":"%s"}]' $GIRAFFE_REPO:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+      - imagedefinitions.json
+

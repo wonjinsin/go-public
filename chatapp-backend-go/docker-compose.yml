@@ -1,0 +1,23 @@
+version: '3'
+services:
+  giraffe:
+    build: .
+    image: giraffe
+    container_name: giraffe
+    ports:
+      - "12001:12001"
+    environment:
+      - PORT=12001
+      - DB_HOST=mongodb
+      - DB_PORT=27017
+      - DB_NAME=giraffe
+      - DB_USER=root
+      - DB_PASS=mongodbpass
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:12001/healthCheck"]
+
+networks:
+  default:
+    external:
+      name: "app_default"
+
