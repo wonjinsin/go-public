@@ -1,7 +1,6 @@
 package downloader
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -38,16 +37,14 @@ func (f *fileInfo) fileDownload() {
 }
 
 func (f *fileInfo) setInput() {
-	urlReader := bufio.NewScanner(os.Stdin)
-	fmt.Print("Please write url: ")
-	urlReader.Scan()
-	text := urlReader.Text()
-	f.url = strings.TrimRight(text, "\r\n")
-
-	pathReader := bufio.NewScanner(os.Stdin)
-	fmt.Print("Please write path: ")
-	text = pathReader.Text()
-	f.url = strings.TrimRight(text, "\r\n")
+	var url string
+	fmt.Print("Please write url:")
+	fmt.Scanln(&url)
+	f.url = url
+	var path string
+	fmt.Print("Please write path:")
+	fmt.Scanln(&path)
+	f.path = path
 }
 
 func (f *fileInfo) setStruct() {
@@ -57,6 +54,7 @@ func (f *fileInfo) setStruct() {
 	f.setPrefix()
 	f.setFilenameOnly()
 	f.setFileNamePrefix()
+	f.makeDirectory()
 }
 
 func (f *fileInfo) setDefault() {
@@ -144,12 +142,11 @@ func (f *fileInfo) startIterate() {
 		fmt.Println("this Last Num is ", thisLastNum)
 		fmt.Println("this Last Con is ", thisCondition)
 
-		done := make(chan bool, 1)
-		fmt.Println("started")
-
-		go func() {
-			for i := thisLastNum; i > thisCondition && i > 0; i-- {
-				str := f.setDynamicStr(i)
+		done2 := make(chan error)
+		for i := thisLastNum; i > thisCondition && i > 0; i-- {
+			count := i
+			go func() {
+				str := f.setDynamicStr(count)
 				result := fmt.Sprintf("%s://%s/%s%s%s?%s", f.protocol, f.prefix, f.fileNamePrefix, str, f.format, f.token)
 
 				if len(f.token) == 0 {
@@ -157,19 +154,17 @@ func (f *fileInfo) startIterate() {
 				}
 
 				defer wg.Done()
+				done2 <- DownloadFile(client, f.path, result, str+".ts")
+			}()
+		}
 
-				DownloadFile(client, f.path, result, str+".ts")
-			}
+		for i := 0; i < thisLastNum-thisCondition; i++ {
+			<-done2
+		}
 
-			done <- true
-
-		}()
-		fmt.Println("doing async")
-		<-done
 	}
 
 	wg.Wait()
-
 }
 
 func (f *fileInfo) setDynamicStr(num int) string {
@@ -188,6 +183,17 @@ func (f *fileInfo) setDynamicStr(num int) string {
 	}
 
 	return str
+}
+
+func (f *fileInfo) makeDirectory() {
+	filepath := "repo/" + f.path
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		err := os.Mkdir(filepath, 0777)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func DownloadFile(client *http.Client, path string, url string, filename string) error {
@@ -224,7 +230,6 @@ func DownloadFile(client *http.Client, path string, url string, filename string)
 		return err
 	}
 
-	fmt.Printf("Url is %s\n", url)
 	fmt.Printf("Downloaded a file %s with size %d\n", filepath, size)
 
 	return err
