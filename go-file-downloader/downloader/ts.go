@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -12,6 +13,8 @@ import (
 )
 
 type fileInfo struct {
+	url             string
+	path            string
 	protocol        string
 	pureUrl         string
 	format          string
@@ -21,35 +24,43 @@ type fileInfo struct {
 	fixedFileLength int
 	lastNum         int
 	token           string
+	limit           int
 }
 
 func Ts() {
-	fileDownload()
+	fileInfo := &fileInfo{limit: 200}
+	fileInfo.fileDownload()
 }
 
-func fileDownload() {
-	url := "https://b01-kr-naver-vod.pstatic.net/navertv/c/read/v2/VOD_ALPHA/navertv_2021_05_31_1728/hls/0d415451-c1c7-11eb-a113-d21d68c12640-000007.ts?_lsu_sa_=68955cf621876c56bada35516315a2b80edd3d08690a3fdf35a789c997d03f3567236a8867752901d02c39e215352bdc988fe4a33d47e374f47e235e996f86687f0bff63a657db97c2199e88d7a33749222d586573ab0f6adfa397816bbbdf4a0e51b3aa198af4e98b64b8ef85f0eb9f63528cb1115870abff060da53f39afa5c0c1be453ce6d9ab67c527e5d8b12d3e"
-	fileInfo := &fileInfo{}
-	fileInfo.setStruct(url)
+func (f *fileInfo) fileDownload() {
+	f.setStruct()
+	f.startIterate()
 }
 
-func (f *fileInfo) setStruct(url string) {
+func (f *fileInfo) setInput() {
+	urlReader := bufio.NewScanner(os.Stdin)
+	fmt.Print("Please write url: ")
+	urlReader.Scan()
+	text := urlReader.Text()
+	f.url = strings.TrimRight(text, "\r\n")
 
-	f.getProtocol(url)
-	f.getFormat()
-	f.getPrefix()
-	f.getFilenameOnly()
-	f.getFileNamePrefix()
-
-	if f.fixedFileLength != 0 {
-		f.startIterateWithPrefix()
-	} else {
-		f.startIterate()
-	}
+	pathReader := bufio.NewScanner(os.Stdin)
+	fmt.Print("Please write path: ")
+	text = pathReader.Text()
+	f.url = strings.TrimRight(text, "\r\n")
 }
 
-func (f *fileInfo) getProtocol(url string) {
-	arr := strings.Split(url, "://")
+func (f *fileInfo) setStruct() {
+	f.setInput()
+	f.setDefault()
+	f.setFormat()
+	f.setPrefix()
+	f.setFilenameOnly()
+	f.setFileNamePrefix()
+}
+
+func (f *fileInfo) setDefault() {
+	arr := strings.Split(f.url, "://")
 	f.protocol = arr[0]
 
 	arr = strings.Split(arr[1], "?")
@@ -60,7 +71,7 @@ func (f *fileInfo) getProtocol(url string) {
 	}
 }
 
-func (f *fileInfo) getFormat() {
+func (f *fileInfo) setFormat() {
 	arr := strings.Split(f.pureUrl, "/")
 	fileName := arr[len(arr)-1]
 
@@ -68,17 +79,16 @@ func (f *fileInfo) getFormat() {
 	f.format = "." + arr[len(arr)-1]
 }
 
-func (f *fileInfo) getPrefix() {
+func (f *fileInfo) setPrefix() {
 	arr := strings.Split(f.pureUrl, "/")
 
 	dir := arr[:len(arr)-1]
 	dirStr := strings.Join(dir, "/")
 
 	f.prefix = dirStr
-
 }
 
-func (f *fileInfo) getFilenameOnly() {
+func (f *fileInfo) setFilenameOnly() {
 	arr := strings.Split(f.pureUrl, "/")
 
 	fileName := arr[len(arr)-1]
@@ -86,84 +96,102 @@ func (f *fileInfo) getFilenameOnly() {
 	f.fileNameOnly = arr[0]
 }
 
-func (f *fileInfo) getFileNamePrefix() {
+func (f *fileInfo) setFileNamePrefix() {
 	if strings.Contains(f.fileNameOnly, "-") {
-		arr := strings.Split(f.fileNameOnly, "-")
-		fileNamePrefixArr := arr[:len(arr)-1]
-		fileNameLast := arr[len(arr)-1]
-		f.fileNamePrefix = strings.Join(fileNamePrefixArr, "-") + "-"
-
-		f.lastNum, _ = strconv.Atoi(fileNameLast)
-		f.fixedFileLength = len(fileNameLast)
+		f.setDashprefix()
 	} else {
-		for i := 0; i < len(f.fileNameOnly); i++ {
-			val := string(f.fileNameOnly[i])
-			_, err := strconv.Atoi(val)
-			if err == nil {
-				f.fileNamePrefix = f.fileNameOnly[:i]
-				f.lastNum, _ = strconv.Atoi(f.fileNameOnly[i:])
-			}
+		f.setNormalprefix()
+	}
+}
+
+func (f *fileInfo) setDashprefix() {
+	arr := strings.Split(f.fileNameOnly, "-")
+	fileNamePrefixArr := arr[:len(arr)-1]
+	fileNameLast := arr[len(arr)-1]
+	f.fileNamePrefix = strings.Join(fileNamePrefixArr, "-") + "-"
+
+	f.lastNum, _ = strconv.Atoi(fileNameLast)
+	f.fixedFileLength = len(fileNameLast)
+}
+
+func (f *fileInfo) setNormalprefix() {
+	for i := 0; i < len(f.fileNameOnly); i++ {
+		val := string(f.fileNameOnly[i])
+		_, err := strconv.Atoi(val)
+		if err == nil {
+			f.fileNamePrefix = f.fileNameOnly[:i]
+			f.lastNum, _ = strconv.Atoi(f.fileNameOnly[i:])
+			break
 		}
 	}
 }
 
 func (f *fileInfo) startIterate() {
-	var wait sync.WaitGroup
-	wait.Add(f.lastNum)
+	client := &http.Client{}
+	var wg sync.WaitGroup
+	wg.Add(f.lastNum)
 
-	for i := f.lastNum; i > 0; i-- {
-		numStr := strconv.Itoa(i)
-		str := numStr
-		result := fmt.Sprintf("%s://%s/%s%s%s?%s", f.protocol, f.prefix, f.fileNamePrefix, str, f.format, f.token)
+	for j := 0; j <= f.lastNum/f.limit; j++ {
 
-		if len(f.token) == 0 {
-			result = result[:len(result)-1]
+		thisLastNum := j*f.limit + f.limit
+		thisCondition := thisLastNum - f.limit
+
+		if thisLastNum > f.lastNum {
+			thisLastNum = f.lastNum
+			thisCondition = j * f.limit
 		}
 
-		func() {
-			defer wait.Done()
-			f.DownloadFile("repo/", result, numStr+".ts")
+		fmt.Println("this Last Num is ", thisLastNum)
+		fmt.Println("this Last Con is ", thisCondition)
+
+		done := make(chan bool, 1)
+		fmt.Println("started")
+
+		go func() {
+			for i := thisLastNum; i > thisCondition && i > 0; i-- {
+				str := f.setDynamicStr(i)
+				result := fmt.Sprintf("%s://%s/%s%s%s?%s", f.protocol, f.prefix, f.fileNamePrefix, str, f.format, f.token)
+
+				if len(f.token) == 0 {
+					result = result[:len(result)-1]
+				}
+
+				defer wg.Done()
+
+				DownloadFile(client, f.path, result, str+".ts")
+			}
+
+			done <- true
+
 		}()
+		fmt.Println("doing async")
+		<-done
 	}
 
-	wait.Wait()
+	wg.Wait()
 
 }
 
-func (f *fileInfo) startIterateWithPrefix() {
-	var wait sync.WaitGroup
-	wait.Add(f.lastNum)
-
-	for i := f.lastNum; i > 0; i-- {
-		numStr := strconv.Itoa(i)
+func (f *fileInfo) setDynamicStr(num int) string {
+	var str string
+	numStr := strconv.Itoa(num)
+	if f.fixedFileLength != 0 {
 		length := len(numStr)
 		zeroCount := f.fixedFileLength - length
 		var zeroStr string
 		for i := 0; i < zeroCount; i++ {
 			zeroStr += "0"
 		}
-		str := zeroStr + numStr
-		result := fmt.Sprintf("%s://%s/%s%s%s?%s", f.protocol, f.prefix, f.fileNamePrefix, str, f.format, f.token)
-
-		if len(f.token) == 0 {
-			result = result[:len(result)-1]
-		}
-
-		go func() {
-			defer wait.Done()
-			f.DownloadFile("repo/", result, numStr+".ts")
-		}()
+		str = zeroStr + numStr
+	} else {
+		str = numStr
 	}
 
-	wait.Wait()
+	return str
 }
 
-func (f *fileInfo) DownloadFile(path string, url string, filename string) error {
-	filepath := path + filename
-	// Get the data
-
-	client := &http.Client{}
-
+func DownloadFile(client *http.Client, path string, url string, filename string) error {
+	// set the data
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -177,14 +205,10 @@ func (f *fileInfo) DownloadFile(path string, url string, filename string) error 
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
 	defer resp.Body.Close()
 
 	// Create the file
+	filepath := "repo/" + path + "/" + filename
 	out, err := os.Create(filepath)
 	if err != nil {
 		log.Fatal(err)
