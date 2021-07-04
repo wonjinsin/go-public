@@ -125,7 +125,6 @@ func (f *fileInfo) setNormalprefix() {
 }
 
 func (f *fileInfo) startIterate() {
-	client := &http.Client{}
 	var wg sync.WaitGroup
 	wg.Add(f.lastNum)
 
@@ -154,7 +153,7 @@ func (f *fileInfo) startIterate() {
 				}
 
 				defer wg.Done()
-				done2 <- DownloadFile(client, f.path, result, str+".ts")
+				done2 <- DownloadFile(f.path, result, str+".ts")
 			}()
 		}
 
@@ -196,7 +195,8 @@ func (f *fileInfo) makeDirectory() {
 	}
 }
 
-func DownloadFile(client *http.Client, path string, url string, filename string) error {
+func DownloadFile(path string, url string, filename string) error {
+	client := &http.Client{}
 	// set the data
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
