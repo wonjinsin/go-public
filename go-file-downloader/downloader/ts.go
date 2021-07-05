@@ -187,6 +187,15 @@ func (f *fileInfo) setDynamicStr(num int) string {
 }
 
 func (f *fileInfo) makeDirectory() {
+	basicpath := f.repo
+	if _, err := os.Stat(basicpath); os.IsNotExist(err) {
+		err := os.Mkdir(basicpath, 0777)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	filepath := fmt.Sprintf("%s/%s", f.repo, f.path)
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
 		err := os.Mkdir(filepath, 0777)
