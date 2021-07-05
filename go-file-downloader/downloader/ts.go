@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
@@ -14,6 +15,7 @@ import (
 type fileInfo struct {
 	url             string
 	path            string
+	repo            string
 	protocol        string
 	pureUrl         string
 	format          string
@@ -27,7 +29,7 @@ type fileInfo struct {
 }
 
 func Ts() {
-	fileInfo := &fileInfo{limit: 200}
+	fileInfo := &fileInfo{repo: "repo", limit: 200}
 	fileInfo.fileDownload()
 }
 
@@ -153,7 +155,7 @@ func (f *fileInfo) startIterate() {
 				}
 
 				defer wg.Done()
-				done2 <- DownloadFile(f.path, result, str+".ts")
+				done2 <- DownloadFile(f.repo, f.path, result, str+".ts")
 			}()
 		}
 
@@ -185,7 +187,7 @@ func (f *fileInfo) setDynamicStr(num int) string {
 }
 
 func (f *fileInfo) makeDirectory() {
-	filepath := "repo/" + f.path
+	filepath := fmt.Sprintf("%s/%s", f.repo, f.path)
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
 		err := os.Mkdir(filepath, 0777)
 
@@ -195,7 +197,17 @@ func (f *fileInfo) makeDirectory() {
 	}
 }
 
-func DownloadFile(path string, url string, filename string) error {
+func (f *fileInfo) startCmd() {
+	_, err := exec.Command("/bin/sh", "ffmpeg.sh", fmt.Sprintf("%s/%s", f.repo, f.path)).Output()
+
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Download success")
+	}
+}
+
+func DownloadFile(repo string, path string, url string, filename string) error {
 	client := &http.Client{}
 	// set the data
 	req, err := http.NewRequest("GET", url, nil)
@@ -214,7 +226,7 @@ func DownloadFile(path string, url string, filename string) error {
 	defer resp.Body.Close()
 
 	// Create the file
-	filepath := "repo/" + path + "/" + filename
+	filepath := fmt.Sprintf("%s/%s/%s", repo, path, filename)
 	out, err := os.Create(filepath)
 	if err != nil {
 		log.Fatal(err)
