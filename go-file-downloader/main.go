@@ -15,7 +15,7 @@ func main() {
 	fmt.Scan(&input.Separator)
 
 	fmt.Print("Write Folder: ")
-	fmt.Scan(&input.Folder)
+	fmt.Scanln(&input.Folder)
 
 	svc := service.NewFileService(input)
 	svc.Do()
