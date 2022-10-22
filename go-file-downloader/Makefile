@@ -1,5 +1,7 @@
 PACKAGE = cheetah
 OS = ${GOOS}
 
-vendor-package:
+start:
+	go mod init $(PACKAGE)
+	go mod tidy
 	go mod vendor
